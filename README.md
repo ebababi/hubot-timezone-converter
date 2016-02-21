@@ -21,6 +21,10 @@ Then add **hubot-timezone-converter** to your `external-scripts.json`:
 ## Sample Interaction
 
 ```
-user1>> hubot hello
-hubot>> hello!
+user1>> team meeting at 4am
+hubot>> 21:00 (Eastern Standard Time)
+        03:00 (Central European Time)
+        04:00 (Eastern European Time)
+user1>> hubot what time is 4am UTC
+hubot>> user1 06:00 (Eastern European Time)
 ```
