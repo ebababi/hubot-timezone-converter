@@ -89,6 +89,8 @@ module.exports = (robot) ->
 
   # Command: hubot <time expression> - Replies with time converted to user time zone.
   robot.respond HUBOT_TIMEZONE_CONVERTER_REGEX, (res) ->
+    return if res.message.subtype?
+
     userTimeZone = userTimeZoneForUser res.message.user
     referenceDate = moment.tz(userTimeZone?.tz)
     messageDate  = chrono.custom.parseDate res.message.text, referenceDate, timezoneOffset: referenceDate.utcOffset()
@@ -101,6 +103,7 @@ module.exports = (robot) ->
   # Command: <time expression> - Sends the time converted to all room users time zones.
   robot.hear HUBOT_TIMEZONE_CONVERTER_REGEX, (res) ->
     return if robot.respondPattern(HUBOT_TIMEZONE_CONVERTER_REGEX).test res.message.text
+    return if res.message.subtype?
 
     userTimeZone = userTimeZoneForUser res.message.user
     referenceDate = moment.tz(userTimeZone?.tz)

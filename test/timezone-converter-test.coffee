@@ -74,3 +74,12 @@ describe 'timezone-converter', ->
           done()
 
         adapter.receive new TextMessage user, 'Team meeting at 4pm.'
+
+      it 'ignores subtyped messages', (done) ->
+        adapter.on 'send', (envelope, strings) -> done()
+
+        msg = new TextMessage user, 'uploaded an image: Pasted image at 2016-03-10, 10:00 AM'
+        msg.subtype = 'file_share'
+
+        adapter.receive msg
+        done()
