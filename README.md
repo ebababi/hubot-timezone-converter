@@ -25,6 +25,4 @@ user1>> team meeting at 4am
 hubot>> 21:00 (Eastern Standard Time)
         03:00 (Central European Time)
         04:00 (Eastern European Time)
-user1>> hubot what time is 4am UTC
-hubot>> user1 06:00 (Eastern European Time)
 ```

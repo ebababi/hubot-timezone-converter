@@ -13,11 +13,8 @@ describe 'timezone-converter', ->
 
     require('../src/timezone-converter')(@robot)
 
-  it 'registers a respond listener', ->
-    expect(@robot.respond).to.have.been.calledWith(/(?:.*?)(?:1?[1-9][ap]m|(?:1?\d|2[0-3])\:[0-5]\d)/i)
-
   it 'registers a hear listener', ->
-    expect(@robot.hear).to.have.been.calledWith(/(?:.*?)(?:1?[1-9][ap]m|(?:1?\d|2[0-3])\:[0-5]\d)/i)
+    expect(@robot.hear).to.have.been.calledWith(/(?:1?[1-9][ap]m|(?:1?\d|2[0-3])\:[0-5]\d)/i)
 
   context 'robot', ->
     fx = require 'node-fixtures'
@@ -52,16 +49,6 @@ describe 'timezone-converter', ->
     afterEach ->
       robot.shutdown()
       fx.reset()
-
-    describe 'respond', ->
-      it 'replies to user the converted time', (done) ->
-        adapter.on 'reply', (envelope, strings) ->
-          expect(strings[0]).to.eq "11:00 (Eastern European Time)\n"
-          done()
-
-        adapter.on 'send', (envelope, strings) -> done()
-
-        adapter.receive new TextMessage user, 'Hubot, what time is 4am EST?'
 
     describe 'hear', ->
       it 'sends to room the converted time', (done) ->

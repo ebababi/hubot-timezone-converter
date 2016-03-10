@@ -5,7 +5,6 @@
 #   HUBOT_TIMEZONE_CONVERTER_FORMAT - Moment.js compatible format of response.
 #
 # Commands:
-#   hubot <time expression> - Replies with time converted to user time zone.
 #   <time expression> - Sends the time converted to all room users time zones.
 #
 # Notes:
@@ -17,7 +16,7 @@
 moment = require 'moment-timezone'
 chrono = require 'chrono-node'
 
-HUBOT_TIMEZONE_CONVERTER_REGEX  = /(?:.*?)(?:1?[1-9][ap]m|(?:1?\d|2[0-3])\:[0-5]\d)/i
+HUBOT_TIMEZONE_CONVERTER_REGEX  = /(?:1?[1-9][ap]m|(?:1?\d|2[0-3])\:[0-5]\d)/i
 HUBOT_TIMEZONE_CONVERTER_FORMAT = process.env.HUBOT_TIMEZONE_CONVERTER_FORMAT or "HH:mm [({tz_label})][\n]"
 
 # Custom Chrono instance, enriched with time zone offset assignment refiner.
@@ -87,22 +86,8 @@ module.exports = (robot) ->
   roomTimeZonesForName = (name) ->
     channelTimeZonesForChannel robot.adapter.client.getChannelGroupOrDMByName name
 
-  # Command: hubot <time expression> - Replies with time converted to user time zone.
-  robot.respond HUBOT_TIMEZONE_CONVERTER_REGEX, (res) ->
-    return if res.message.subtype?
-
-    userTimeZone = userTimeZoneForUser res.message.user
-    referenceDate = moment.tz(userTimeZone?.tz)
-    messageDate  = chrono.custom.parseDate res.message.text, referenceDate, timezoneOffset: referenceDate.utcOffset()
-
-    if messageDate
-      res.reply moment.tz(messageDate, userTimeZone?.tz)
-        .format HUBOT_TIMEZONE_CONVERTER_FORMAT.replace /\{(\w+)\}/g, (match, property) ->
-          userTimeZone?[property] or match
-
   # Command: <time expression> - Sends the time converted to all room users time zones.
   robot.hear HUBOT_TIMEZONE_CONVERTER_REGEX, (res) ->
-    return if robot.respondPattern(HUBOT_TIMEZONE_CONVERTER_REGEX).test res.message.text
     return if res.message.subtype?
 
     userTimeZone = userTimeZoneForUser res.message.user
@@ -112,7 +97,7 @@ module.exports = (robot) ->
     if messageDate
       roomTimeZones = roomTimeZonesForName res.message.room
 
-      if roomTimeZones.length > 1
+      if roomTimeZones.length > 1 or res.message.room is robot.name
         memberDates = for roomTimeZone in roomTimeZones
           moment.tz(messageDate, roomTimeZone.tz)
             .format HUBOT_TIMEZONE_CONVERTER_FORMAT.replace /\{(\w+)\}/g, (match, property) ->
