@@ -97,7 +97,7 @@ module.exports = (robot) ->
     if messageDate
       roomTimeZones = roomTimeZonesForName res.message.room
 
-      if roomTimeZones.length > 1 or res.message.room is robot.name
+      if roomTimeZones.length > 1 or res.message.room is res.message.user.name
         memberDates = for roomTimeZone in roomTimeZones
           moment.tz(messageDate, roomTimeZone.tz)
             .format HUBOT_TIMEZONE_CONVERTER_FORMAT.replace /\{(\w+)\}/g, (match, property) ->
