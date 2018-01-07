@@ -1,7 +1,7 @@
 {
   "name": "hubot-timezone-converter",
   "description": "Enable hubot to convert times in user time zones during discussion.",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "author": "Nikolaos Anastopoulos <ebababi@ebababi.net>",
   "license": "MIT",
   "keywords": "hubot, hubot-scripts",
