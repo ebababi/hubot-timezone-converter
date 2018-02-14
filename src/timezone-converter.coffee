@@ -16,7 +16,7 @@
 moment = require 'moment-timezone'
 chrono = require 'chrono-node'
 
-HUBOT_TIMEZONE_CONVERTER_REGEX  = /(?:1?[1-9][ap]m|(?:1?\d|2[0-3])\:[0-5]\d)/i
+HUBOT_TIMEZONE_CONVERTER_REGEX  = /(?:1?[0-9][ap]m|(?:1?\d|2[0-3])\:[0-5]\d)/i
 HUBOT_TIMEZONE_CONVERTER_FORMAT = process.env.HUBOT_TIMEZONE_CONVERTER_FORMAT or "HH:mm [({tz_label})][\n]"
 
 # Custom Chrono instance, enriched with time zone offset assignment refiner.
