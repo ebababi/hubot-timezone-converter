@@ -14,7 +14,7 @@ describe 'timezone-converter', ->
     require('../src/timezone-converter')(@robot)
 
   it 'registers a hear listener', ->
-    expect(@robot.hear).to.have.been.calledWith(/(?:1?[1-9][ap]m|(?:1?\d|2[0-3])\:[0-5]\d)/i)
+    expect(@robot.hear).to.have.been.calledWith(sinon.match.regexp)
 
   context 'robot', ->
     fx = require 'node-fixtures'
@@ -60,7 +60,7 @@ describe 'timezone-converter', ->
           """
           done()
 
-        adapter.receive new TextMessage user, 'Team meeting at 4pm.'
+        adapter.receive new TextMessage user, 'Team meeting at 11/12 4pm.'
 
       it 'ignores subtyped messages', (done) ->
         adapter.on 'send', (envelope, strings) -> done()
