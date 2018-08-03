@@ -1,3 +1,4 @@
+mockery = require 'mockery'
 chai = require 'chai'
 sinon = require 'sinon'
 chai.use require 'sinon-chai'
@@ -27,6 +28,8 @@ describe 'timezone-converter', ->
     adapter = null
 
     beforeEach (done) ->
+      mockery.enable warnOnReplace: false, warnOnUnregistered: false
+      mockery.registerMock 'hubot-mock-adapter', require('./fixtures/mock-adapter')
       robot = new Robot null, 'mock-adapter', false
 
       robot.adapter.on 'connected', ->
@@ -47,6 +50,7 @@ describe 'timezone-converter', ->
       robot.run()
 
     afterEach ->
+      mockery.disable()
       robot.shutdown()
       fx.reset()
 
