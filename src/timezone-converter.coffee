@@ -23,23 +23,55 @@ HUBOT_TIMEZONE_CONVERTER_FORMAT = process.env.HUBOT_TIMEZONE_CONVERTER_FORMAT or
 chrono.custom = do ->
   custom = new chrono.Chrono()
 
-  # Chrono refiner that will apply time zone offset implied by options.
+  # Chrono refiner that will imply time zone offset set by options.
   #
-  # Time zone offset should be assigned instead of implied because system time
-  # zone takes precedence to implied time zone.
-  assignTimeZoneOffsetRefiner = new chrono.Refiner()
-  assignTimeZoneOffsetRefiner.refine = (text, results, opt) ->
+  # This requires `chrono-node` version 1.3.7 and it doesn't have any effect in
+  # lesser versions.
+  implyTimeZoneOffsetRefiner = new chrono.Refiner()
+  implyTimeZoneOffsetRefiner.refine = (text, results, opt) ->
     return results unless opt['timezoneOffset']?
 
     results.forEach (result) ->
-      unless result.start.isCertain('timezoneOffset')
-        result.start.assign 'timezoneOffset', opt['timezoneOffset']
-
-      if result.end? and not result.end.isCertain('timezoneOffset')
-        result.end.assign 'timezoneOffset', opt['timezoneOffset']
+      result.start.imply 'timezoneOffset', opt['timezoneOffset']
+      result.end.imply 'timezoneOffset', opt['timezoneOffset'] if result.end?
 
     results
 
+  # Converts chrono parsed components to a moment date object with time zone.
+  parsedComponentsToMoment = (parsedComponents, zoneName) ->
+    dateMoment = moment.tz zoneName
+
+    dateMoment.set 'year', parsedComponents.get('year')
+    dateMoment.set 'month', parsedComponents.get('month') - 1
+    dateMoment.set 'date', parsedComponents.get('day')
+    dateMoment.set 'hour', parsedComponents.get('hour')
+    dateMoment.set 'minute', parsedComponents.get('minute')
+    dateMoment.set 'second', parsedComponents.get('second')
+    dateMoment.set 'millisecond', parsedComponents.get('millisecond')
+
+    dateMoment
+
+  # Chrono refiner that will apply time zone offset implied by options.
+  #
+  # Time zone offset should be assigned instead of implied because system time
+  # zone takes precedence to implied time zone in `chrono-node` versions 1.3.6
+  # or less. Moreover,
+  assignTimeZoneOffsetRefiner = new chrono.Refiner()
+  assignTimeZoneOffsetRefiner.refine = (text, results, opt) ->
+    return results unless opt['timezoneName']?
+
+    results.forEach (result) ->
+      unless result.start.isCertain('timezoneOffset')
+        utcOffset = parsedComponentsToMoment(result.start, opt['timezoneName']).utcOffset()
+        result.start.assign 'timezoneOffset', utcOffset
+
+      if result.end? and not result.end.isCertain('timezoneOffset')
+        utcOffset = parsedComponentsToMoment(result.end, opt['timezoneName']).utcOffset()
+        result.end.assign 'timezoneOffset', utcOffset
+
+    results
+
+  custom.refiners.push implyTimeZoneOffsetRefiner
   custom.refiners.push assignTimeZoneOffsetRefiner
   custom
 
@@ -84,8 +116,10 @@ module.exports = (robot) ->
     return if res.message.subtype?
 
     userTimeZone  = userTimeZoneForUser res.message.user
-    referenceDate = moment.tz(userTimeZone?.tz)
-    messageDate   = chrono.custom.parseDate res.message.text, referenceDate, timezoneOffset: referenceDate.utcOffset()
+    referenceDate = moment.tz userTimeZone?.tz
+    referenceZone = moment.tz.zone userTimeZone?.tz
+    messageDate   = chrono.custom.parseDate res.message.text, referenceDate,
+      timezoneOffset: referenceDate.utcOffset(), timezoneName: referenceZone?.name
 
     if messageDate
       robot.adapter.client.fetchConversation(res.message.room)
