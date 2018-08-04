@@ -79,28 +79,23 @@ module.exports = (robot) ->
           uniq
       , []
 
-  # Extract an array of unique time zone hash objects of member users given a
-  # room name.
-  #
-  # Returns an array of time zone hashes for the specified room.
-  roomTimeZonesForName = (name) ->
-    channelTimeZonesForChannel robot.adapter.client.getChannelGroupOrDMByName name
-
   # Command: <time expression> - Sends the time converted to all room users time zones.
   robot.hear HUBOT_TIMEZONE_CONVERTER_REGEX, (res) ->
     return if res.message.subtype?
 
-    userTimeZone = userTimeZoneForUser res.message.user
+    userTimeZone  = userTimeZoneForUser res.message.user
     referenceDate = moment.tz(userTimeZone?.tz)
-    messageDate  = chrono.custom.parseDate res.message.text, referenceDate, timezoneOffset: referenceDate.utcOffset()
+    messageDate   = chrono.custom.parseDate res.message.text, referenceDate, timezoneOffset: referenceDate.utcOffset()
 
     if messageDate
-      roomTimeZones = roomTimeZonesForName res.message.room
+      robot.adapter.client.fetchConversation(res.message.room)
+        .then (channel) ->
+          roomTimeZones = channelTimeZonesForChannel channel
 
-      if roomTimeZones.length > 1 or res.message.room is res.message.user.name
-        memberDates = for roomTimeZone in roomTimeZones
-          moment.tz(messageDate, roomTimeZone.tz)
-            .format HUBOT_TIMEZONE_CONVERTER_FORMAT.replace /\{(\w+)\}/g, (match, property) ->
-              roomTimeZone[property] or match
+          if roomTimeZones.length > 1 or channel.is_im
+            memberDates = for roomTimeZone in roomTimeZones
+              moment.tz(messageDate, roomTimeZone.tz)
+                .format HUBOT_TIMEZONE_CONVERTER_FORMAT.replace /\{(\w+)\}/g, (match, property) ->
+                  roomTimeZone[property] or match
 
-        res.send memberDates.join ''
+            res.send memberDates.join ''

@@ -18,9 +18,10 @@
   },
   "peerDependencies": {
     "hubot": "2.x",
-    "hubot-slack": "4.x"
+    "hubot-slack": "^4.5"
   },
   "devDependencies": {
+    "bluebird": "^3.5.1",
     "chai": "~2.1.0",
     "coffee-script": "~1.6.3",
     "coffeelint": "^1.16.0",
@@ -30,7 +31,7 @@
     "grunt-mocha-test": "^0.12.7",
     "grunt-release": "^0.13.1",
     "hubot": "2.x",
-    "hubot-slack": "4.x",
+    "hubot-slack": "^4.5",
     "matchdep": "^2.0.0",
     "mocha": "^2.1.0",
     "mockery": "^1.4.0",

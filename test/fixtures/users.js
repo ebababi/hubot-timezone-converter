@@ -2,7 +2,7 @@
   "1": {
     "name": "mocha",
     "root": "#mocha",
-    "room": "general",
+    "room": "C123",
     "slack": {
       "tz": "Europe/Athens",
       "tz_label": "Eastern European Time",

@@ -1,3 +1,4 @@
+Promise = require 'bluebird'
 mockery = require 'mockery'
 chai = require 'chai'
 sinon = require 'sinon'
@@ -39,8 +40,8 @@ describe 'timezone-converter', ->
 
         adapter = robot.adapter
         adapter.client =
-          getChannelGroupOrDMByName: (name) ->
-            return channel for cid, channel of fx.channels when channel.name is name
+          fetchConversation: (conversationId) ->
+            return Promise.resolve(channel) for cid, channel of fx.channels when channel.id is conversationId
 
         robot.adapterName = 'slack'
         require('../src/timezone-converter')(robot)
